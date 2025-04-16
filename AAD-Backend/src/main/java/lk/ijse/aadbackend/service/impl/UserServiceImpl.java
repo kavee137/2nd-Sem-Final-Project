@@ -101,6 +101,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         user.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
 
         userRepository.save(user);
+        emailService.sendWelcomeEmail(user.getEmail(), user.getName());
         return VarList.Created;
     }
 
