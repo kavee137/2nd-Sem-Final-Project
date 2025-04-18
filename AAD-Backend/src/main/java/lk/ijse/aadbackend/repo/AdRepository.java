@@ -44,4 +44,23 @@ public interface AdRepository  extends JpaRepository<Ad, UUID> {
 
     //End of Ad filter ----------------------------------------------------------------------------
 
+
+
+
+    //Ad search ----------------------------------------------------------------------------
+
+    @Query("SELECT a FROM Ad a " +
+            "WHERE a.status = 'ACTIVE' " +
+            "AND (:keyword IS NULL OR LOWER(a.title) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "AND (:categoryId IS NULL OR a.category.id = :categoryId) " +
+            "AND (:districtId IS NULL OR a.location.parentLocation.id = :districtId) " +
+            "AND (:cityId IS NULL OR a.location.id = :cityId)")
+    List<Ad> searchAds(@Param("keyword") String keyword,
+                       @Param("categoryId") UUID categoryId,
+                       @Param("districtId") UUID districtId,
+                       @Param("cityId") UUID cityId);
+
+
+
+    //End of Ad search ----------------------------------------------------------------------------
 }

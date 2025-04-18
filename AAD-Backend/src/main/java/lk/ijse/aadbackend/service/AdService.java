@@ -1,6 +1,7 @@
 package lk.ijse.aadbackend.service;
 
 import lk.ijse.aadbackend.dto.AdDTO;
+import lk.ijse.aadbackend.dto.AdSearchRequestDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -23,5 +24,7 @@ public interface AdService {
     int countActiveAdsByParentCategory(UUID parentCategoryId);
 
     List<AdDTO> filterAds(UUID subcategoryId, UUID districtId, UUID cityId);
+
+    List<AdDTO> searchAds(AdSearchRequestDTO searchRequest);
 
 }

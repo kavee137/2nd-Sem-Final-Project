@@ -81,6 +81,7 @@ public class WebSecurityConfig {
                                 "/api/v1/ad/get-ad-images/{adId}",
                                 "/api/v1/ad/count/by-parent-category/{parentCategoryId}",
                                 "/api/v1/ad/filter",
+                                "/api/v1/ad/search",
 
                                 "/uploadImages/*",
 

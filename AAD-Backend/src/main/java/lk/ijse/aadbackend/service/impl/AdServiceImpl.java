@@ -1,6 +1,7 @@
 package lk.ijse.aadbackend.service.impl;
 
 import lk.ijse.aadbackend.dto.AdDTO;
+import lk.ijse.aadbackend.dto.AdSearchRequestDTO;
 import lk.ijse.aadbackend.entity.Ad;
 import lk.ijse.aadbackend.entity.Category;
 import lk.ijse.aadbackend.entity.Location;
@@ -11,9 +12,12 @@ import lk.ijse.aadbackend.repo.CategoryRepository;
 import lk.ijse.aadbackend.repo.LocationRepository;
 import lk.ijse.aadbackend.repo.UserRepository;
 import lk.ijse.aadbackend.service.AdService;
+import lk.ijse.aadbackend.specification.AdSpecification;
 import lk.ijse.aadbackend.util.VarList;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -346,6 +350,45 @@ public class AdServiceImpl implements AdService {
 
 
 
+
+
+
+    @Override
+    public List<AdDTO> searchAds(AdSearchRequestDTO searchRequest) {
+        List<Ad> ads = adRepository.searchAds(
+                searchRequest.getKeyword(),
+                searchRequest.getCategoryId(),
+                searchRequest.getDistrictId(),
+                searchRequest.getCityId()
+        );
+
+        return ads.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    private AdDTO convertToDTO(Ad ad) {
+        AdDTO dto = new AdDTO();
+        dto.setId(ad.getId());
+        dto.setTitle(ad.getTitle());
+        dto.setDescription(ad.getDescription());
+        dto.setPrice(ad.getPrice());
+        dto.setStatus(ad.getStatus());
+        dto.setUserId(ad.getUser().getId());
+        dto.setUserName(ad.getUser().getName());
+        dto.setUserPhone(ad.getUser().getPhone());
+        dto.setCategoryId(ad.getCategory().getId());
+        dto.setCategoryName(ad.getCategory().getName());
+        dto.setLocationId(ad.getLocation().getId());
+        dto.setLocationName(ad.getLocation().getName());
+        dto.setParentLocationName(ad.getLocation().getParentLocation().getName());
+        dto.setCreatedAt(ad.getCreatedAt().toString());
+
+        // handle image URLs
+        if (ad.getImages() != null && !ad.getImages().isEmpty()) {
+            dto.setImageUrls(List.of(ad.getImages().split(",")));
+        }
+
+        return dto;
+    }
 
 
 

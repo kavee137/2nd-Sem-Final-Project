@@ -3,6 +3,7 @@ package lk.ijse.aadbackend.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lk.ijse.aadbackend.dto.AdDTO;
+import lk.ijse.aadbackend.dto.AdSearchRequestDTO;
 import lk.ijse.aadbackend.dto.ResponseDTO;
 import lk.ijse.aadbackend.entity.Ad;
 import lk.ijse.aadbackend.repo.AdRepository;
@@ -20,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:63342") // Allow frontend URL
 @RestController
@@ -197,6 +199,11 @@ public class AdController {
 
 
 
+    @PostMapping("/search")
+    public ResponseEntity<List<AdDTO>> searchAds(@RequestBody AdSearchRequestDTO searchRequest) {
+        List<AdDTO> result = adService.searchAds(searchRequest);
+        return ResponseEntity.ok(result);
+    }
 
 
 
