@@ -9,4 +9,8 @@ import java.util.UUID;
 public interface CategoryRepository extends JpaRepository<Category, UUID> {
     List<Category> findByParentCategoryId(UUID parentCategoryId);
 
+
+    // New method to count subcategories
+    int countByParentCategoryId(UUID parentCategoryId);
+
 }

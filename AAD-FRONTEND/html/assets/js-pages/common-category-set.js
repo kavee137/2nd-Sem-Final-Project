@@ -13,7 +13,7 @@ $(document).ready(function () {
                 // Create card with placeholder for ad count
                 const card = $(`
                     <div class="col-lg-2 col-md-3 col-sm-6">
-                        <a href="html/categories.html" class="category-links">
+                        <a href="listing-list-sidebar.html?categoryId=${category.id}" class="category-links">
                             <h5>${category.name}</h5>
                             <span class="ad-count">Loading...</span>
                             <img src="http://localhost:8082/${category.imageUrl}" alt="icons">

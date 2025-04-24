@@ -292,9 +292,30 @@ public class AdServiceImpl implements AdService {
 
 
     @Override
-    public List<AdDTO> filterAds(UUID subcategoryId, UUID districtId, UUID cityId) {
+    public List<AdDTO> filterAds(UUID subcategoryId, UUID districtId, UUID cityId, UUID parentCategoryId) {
         List<Ad> ads;
         String status = "ACTIVE";
+
+        // First, handle parent category cases
+        if (parentCategoryId != null) {
+            if (districtId != null && cityId != null) {
+                // Parent category + district + city
+                ads = adRepository.findByStatusAndCategoryParentCategoryIdAndLocationParentLocationIdAndLocationId(
+                        status, parentCategoryId, districtId, cityId);
+            } else if (districtId != null) {
+                // Parent category + district
+                ads = adRepository.findByStatusAndCategoryParentCategoryIdAndLocationParentLocationId(
+                        status, parentCategoryId, districtId);
+            } else if (cityId != null) {
+                // Parent category + city
+                ads = adRepository.findByStatusAndCategoryParentCategoryIdAndLocationId(
+                        status, parentCategoryId, cityId);
+            } else {
+                // Only parent category
+                ads = adRepository.findByStatusAndCategoryParentCategoryId(status, parentCategoryId);
+            }
+        }
+
 
         if (subcategoryId != null && districtId != null && cityId != null) {
             // All filters applied
@@ -332,6 +353,15 @@ public class AdServiceImpl implements AdService {
                     // Manually set userName and locationName
                     dto.setUserName(ad.getUser().getName());
                     dto.setLocationName(ad.getLocation().getName());
+
+                    // Set parent location name if available
+                    if (ad.getLocation().getParentLocation() != null) {
+                        dto.setParentLocationName(ad.getLocation().getParentLocation().getName());
+                    }
+
+                    // Set category name
+                    dto.setCategoryName(ad.getCategory().getName());
+
                     // Convert images string to List<String> of URLs
                     List<String> imageUrls = new ArrayList<>();
                     if (ad.getImages() != null && !ad.getImages().isEmpty()) {

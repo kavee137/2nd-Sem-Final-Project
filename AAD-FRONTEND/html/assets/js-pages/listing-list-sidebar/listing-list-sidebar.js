@@ -274,6 +274,10 @@ $(document).ready(function () {
 
 
 
+
+
+    let selectedCategoryId = null;
+    let selectedParentCategoryId = null;
     let selectedSubCategory = null;
     let selectedDistrict = null;
     let selectedCity = null;
@@ -323,13 +327,66 @@ $(document).ready(function () {
     });
 
 
+
+
+
+
+
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    selectedCategoryId = urlParams.get('categoryId');
+
+    // Check if it's a parent category or subcategory
+    if (selectedCategoryId) {
+
+        console.log("selectedParentCategoryId :" + selectedCategoryId)
+
+        // Check if this is a parent category by making an API call
+        $.ajax({
+            url: `http://localhost:8082/api/v1/category/${selectedCategoryId}/isParent`,
+            method: 'GET',
+            async: false, // We need to wait for this to complete before proceeding
+            success: function(isParent) {
+                if (isParent) {
+                    console.log("Is parent: " + isParent);
+                    // It's a parent category
+                    selectedParentCategoryId = selectedCategoryId;
+                    selectedCategoryId = null;
+                } else {
+                    // It's a subcategory
+                    selectedSubCategory = selectedCategoryId;
+                }
+
+                // Now load ads based on the category type
+                loadFilteredAds();
+            },
+            error: function() {
+                // Assume it's a subcategory if we can't determine
+                selectedSubCategory = selectedCategoryId;
+                loadFilteredAds();
+            }
+        });
+    } else {
+        // No category specified, load all ads
+        loadFilteredAds();
+    }
+
+    // Function to load filtered ads
     function loadFilteredAds() {
+
+
+        console.log("Load fileter ads function working!");
         // Show loading indicator
         $('#ads-container').html('<div class="loading-spinner"><i class="fa fa-spinner fa-spin"></i> Loading...</div>');
 
         const queryParams = [];
+
+        // Add parameters based on selections
+        if (selectedParentCategoryId) {
+            queryParams.push(`parentCategoryId=${selectedParentCategoryId}`);
+        }
         if (selectedSubCategory) {
-            queryParams.push(`subcategoryId=${selectedSubCategory}`);
+            queryParams.push(`categoryId=${selectedSubCategory}`);
         }
         if (selectedDistrict) {
             queryParams.push(`districtId=${selectedDistrict}`);
@@ -341,6 +398,7 @@ $(document).ready(function () {
         const url = `http://localhost:8082/api/v1/ad/filter?${queryParams.join('&')}`;
 
         $.ajax({
+
             url: url,
             method: "GET",
             success: function(ads) {
@@ -348,56 +406,62 @@ $(document).ready(function () {
                 if (ads && ads.length > 0) {
                     let adsContainer = $('#ads-container');
                     ads.forEach(ad => {
+                        console.log("Ad: " + ad);
                         let timeAgo = moment(ad.createdAt).fromNow();
                         let firstImage = (ad.imageUrls && ad.imageUrls.length > 0)
                             ? ad.imageUrls[0]
                             : 'assets/img/404-error.jpg';
 
+                        // If the URL doesn't start with http, add the base URL
+                        if (firstImage && !firstImage.startsWith('http')) {
+                            firstImage = `http://localhost:8082/uploadImages/${firstImage}`;
+                        }
+
                         const adHtml = `
-                    <a href="product.html?id=${ad.id}" style="z-index: 100;">
-                        <div class="card" style="cursor:pointer;">
-                            <div class="blog-widget">
-                                <div class="blog-img">
-                                    <a href="product.html?id=${ad.id}">
-                                        <img src="${firstImage}" class="img-fluid" alt="${ad.title}">
-                                    </a>
-                                    <div class="fav-item">
-                                        <a href="javascript:void(0)" class="fav-icon">
-                                            <i class="feather-heart"></i>
+                        <a href="product.html?id=${ad.id}" style="z-index: 100;">
+                            <div class="card" style="cursor:pointer;">
+                                <div class="blog-widget">
+                                    <div class="blog-img">
+                                        <a href="product.html?id=${ad.id}">
+                                            <img src="${firstImage}" class="img-fluid" alt="${ad.title}">
                                         </a>
+                                        <div class="fav-item">
+                                            <a href="javascript:void(0)" class="fav-icon">
+                                                <i class="feather-heart"></i>
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="bloglist-content">
-                                    <div class="card-body">
-                                        <div class="blogfeaturelink">
-                                            <div class="blog-features">
-                                                <a href="javascript:void(0);"><span>${ad.categoryName}</span></a>
+                                    <div class="bloglist-content">
+                                        <div class="card-body">
+                                            <div class="blogfeaturelink">
+                                                <div class="blog-features">
+                                                    <a href="javascript:void(0);"><span>${ad.categoryName}</span></a>
+                                                </div>
+                                                <div class="blog-author">
+                                                    <a href="javascript:void(0);"><i class="fa fa-user-circle"></i> ${ad.userName}</a>
+                                                </div>
                                             </div>
-                                            <div class="blog-author">
-                                                <a href="javascript:void(0);"><i class="fa fa-user-circle"></i> ${ad.userName}</a>
+                                            <h6><a href="product.html?id=${ad.id}">${ad.title}</a></h6>
+                                            <div class="blog-location-details">
+                                                <div class="location-info">
+                                                    <i class="feather-map-pin"></i> ${ad.parentLocationName || ad.locationName || 'Location not specified'}
+                                                </div>
+                                                <div class="posted-time">
+                                                    <i class="fa fa-clock"></i> ${timeAgo}
+                                                </div>
                                             </div>
-                                        </div>
-                                        <h6><a href="product.html?id=${ad.id}">${ad.title}</a></h6>
-                                        <div class="blog-location-details">
-                                            <div class="location-info">
-                                                <i class="feather-map-pin"></i> ${ad.locationName}
+                                            <div class="amount-details">
+                                                <div class="amount">
+                                                    <span class="validrate">Rs. ${ad.price.toLocaleString()}</span>
+                                                </div>
+                                                <a href="product.html?id=${ad.id}">View details</a>
                                             </div>
-                                            <div class="posted-time">
-                                                <i class="fa fa-clock"></i> ${timeAgo}
-                                            </div>
-                                        </div>
-                                        <div class="amount-details">
-                                            <div class="amount">
-                                                <span class="validrate">Rs. ${ad.price.toLocaleString()}</span>
-                                            </div>
-                                            <a href="product.html?id=${ad.id}">View details</a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </a>
-                `;
+                        </a>
+                    `;
                         adsContainer.append(adHtml);
                     });
                     // Update count display

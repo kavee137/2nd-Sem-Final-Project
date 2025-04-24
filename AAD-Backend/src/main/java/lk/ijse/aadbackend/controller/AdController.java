@@ -189,11 +189,12 @@ public class AdController {
 
     @GetMapping("/filter")
     public ResponseEntity<List<AdDTO>> filterAds(
-            @RequestParam(required = false) UUID subcategoryId,
+            @RequestParam(required = false) UUID categoryId,
             @RequestParam(required = false) UUID districtId,
-            @RequestParam(required = false) UUID cityId
+            @RequestParam(required = false) UUID cityId,
+            @RequestParam(required = false) UUID parentCategoryId
     ) {
-        List<AdDTO> filteredAds = adService.filterAds(subcategoryId, districtId, cityId);
+        List<AdDTO> filteredAds = adService.filterAds(categoryId, districtId, cityId, parentCategoryId);
         return ResponseEntity.ok(filteredAds);
     }
 

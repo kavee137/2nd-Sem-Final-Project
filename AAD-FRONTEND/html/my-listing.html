@@ -411,6 +411,8 @@
 
 	<script>
 		function editAd(ad) {
+			console.log("edit ad method in html: " + ad);
+			sessionStorage.removeItem("editAd");
 			sessionStorage.setItem("editAd", JSON.stringify(ad));
 		}
 

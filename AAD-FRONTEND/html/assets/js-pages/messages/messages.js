@@ -705,7 +705,7 @@ $(document).ready(function() {
         });
     }
 
-// Poll for new messages every 10 seconds
+
     setInterval(function() {
         if (currentChatUser && currentAdId) {
             loadConversation(currentChatUser, currentAdId);

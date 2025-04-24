@@ -1,6 +1,7 @@
 $(document).ready(function () {
 
     localStorage.clear();
+    sessionStorage.clear();
 
     $(".login-btn").click(function (e) {
         e.preventDefault(); // Prevent default form submission

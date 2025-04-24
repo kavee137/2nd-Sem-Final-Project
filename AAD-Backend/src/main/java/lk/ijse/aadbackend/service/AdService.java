@@ -23,7 +23,7 @@ public interface AdService {
 
     int countActiveAdsByParentCategory(UUID parentCategoryId);
 
-    List<AdDTO> filterAds(UUID subcategoryId, UUID districtId, UUID cityId);
+    List<AdDTO> filterAds(UUID subcategoryId, UUID districtId, UUID cityId, UUID parentCategoryId);
 
     List<AdDTO> searchAds(AdSearchRequestDTO searchRequest);
 

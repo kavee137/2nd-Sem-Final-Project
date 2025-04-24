@@ -3,8 +3,11 @@ package lk.ijse.aadbackend.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lk.ijse.aadbackend.dto.CategoryDTO;
 import lk.ijse.aadbackend.dto.ResponseDTO;
+import lk.ijse.aadbackend.entity.Category;
+import lk.ijse.aadbackend.repo.CategoryRepository;
 import lk.ijse.aadbackend.service.CategoryService;
 import lk.ijse.aadbackend.service.impl.AdServiceImpl;
+import lk.ijse.aadbackend.service.impl.LocationServiceImpl;
 import lk.ijse.aadbackend.util.VarList;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -26,12 +29,14 @@ public class CategoryController {
     private final ObjectMapper objectMapper; // JSON parser
     private final ModelMapper modelMapper;
     private final AdServiceImpl adServiceImpl;
+    private final CategoryRepository categoryRepository;
 
-    public CategoryController(CategoryService categoryService, ObjectMapper objectMapper, ModelMapper modelMapper, AdServiceImpl adServiceImpl) {
+    public CategoryController(CategoryService categoryService, ObjectMapper objectMapper, ModelMapper modelMapper, AdServiceImpl adServiceImpl, CategoryRepository categoryRepository) {
         this.categoryService = categoryService;
         this.objectMapper = objectMapper;
         this.modelMapper = modelMapper;
         this.adServiceImpl = adServiceImpl;
+        this.categoryRepository = categoryRepository;
     }
 
     @PostMapping(value = "/create", consumes = "multipart/form-data")
@@ -85,7 +90,22 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.getCategoryByCategoryId(id));
     }
 
+    @GetMapping("/{categoryId}/isParent")
+    public ResponseEntity<Boolean> isCategoryParent(@PathVariable UUID categoryId) throws ResourceNotFoundException {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + categoryId));
 
+        // A category is a parent if it has subcategories or if its parentCategory is null
+        boolean isParent = categoryRepository.countByParentCategoryId(categoryId) > 0 || category.getParentCategory() == null;
+
+        return ResponseEntity.ok(isParent);
+    }
+
+
+    private class ResourceNotFoundException extends Throwable {
+        public ResourceNotFoundException(String s) {
+        }
+    }
 
 
 

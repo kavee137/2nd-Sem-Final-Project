@@ -14,7 +14,7 @@ $(document).ready(function () {
 
     if (!adData) {
         alert("No ad data found. Please go back and try again.");
-        window.location.href = "your-listing-page.html";
+        window.location.href = "my-listing.html";
         return;
     }
 

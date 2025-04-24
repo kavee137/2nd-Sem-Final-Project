@@ -42,6 +42,26 @@ public interface AdRepository  extends JpaRepository<Ad, UUID> {
 
     List<Ad> findByStatusAndLocationId(String status, UUID cityId);
 
+
+
+
+    // New method - find by category's parent ID
+    @Query("SELECT a FROM Ad a WHERE a.status = :status AND a.category.parentCategory.id = :parentCategoryId")
+    List<Ad> findByStatusAndCategoryParentCategoryId(String status, UUID parentCategoryId);
+
+    // Parent category + district
+    @Query("SELECT a FROM Ad a WHERE a.status = :status AND a.category.parentCategory.id = :parentCategoryId AND a.location.parentLocation.id = :districtId")
+    List<Ad> findByStatusAndCategoryParentCategoryIdAndLocationParentLocationId(String status, UUID parentCategoryId, UUID districtId);
+
+    // Parent category + city
+    @Query("SELECT a FROM Ad a WHERE a.status = :status AND a.category.parentCategory.id = :parentCategoryId AND a.location.id = :cityId")
+    List<Ad> findByStatusAndCategoryParentCategoryIdAndLocationId(String status, UUID parentCategoryId, UUID cityId);
+
+    // Parent category + district + city
+    @Query("SELECT a FROM Ad a WHERE a.status = :status AND a.category.parentCategory.id = :parentCategoryId AND a.location.parentLocation.id = :districtId AND a.location.id = :cityId")
+    List<Ad> findByStatusAndCategoryParentCategoryIdAndLocationParentLocationIdAndLocationId(String status, UUID parentCategoryId, UUID districtId, UUID cityId);
+
+
     //End of Ad filter ----------------------------------------------------------------------------
 
 

@@ -60,6 +60,7 @@ public class WebSecurityConfig {
                                 "/api/v1/category/delete/{id}",
                                 "/api/v1/category/getAll",
                                 "/api/v1/category/cid/{id}",
+                                "/api/v1/category/{categoryId}/isParent",
 
 
                                 "/api/v1/chat/save",
